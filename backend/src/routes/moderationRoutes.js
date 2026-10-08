@@ -1,0 +1,1 @@
+import { Router } from 'express';import { authenticate } from '../middleware/auth.js';import { createDispute,myDisputes,createReport } from '../controllers/moderationController.js';const r=Router();r.get('/disputes',authenticate,myDisputes);r.post('/disputes',authenticate,createDispute);r.post('/reports',authenticate,createReport);export default r;

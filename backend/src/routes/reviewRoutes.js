@@ -1,0 +1,1 @@
+import { Router } from 'express';import { authenticate } from '../middleware/auth.js';import { createReview,userReviews } from '../controllers/reviewController.js';const r=Router();r.post('/projects/:projectId',authenticate,createReview);r.get('/users/:userId',userReviews);export default r;

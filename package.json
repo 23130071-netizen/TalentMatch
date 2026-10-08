@@ -1,0 +1,28 @@
+{
+  "name": "talentmatch",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n BACKEND,FRONTEND -c auto \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "build": "npm run build --workspace frontend",
+    "prisma:validate": "npm exec --workspace backend -- prisma validate --schema=prisma/schema.prisma",
+    "prisma:generate": "npm exec --workspace backend -- prisma generate --schema=prisma/schema.prisma",
+    "db:migrate": "npm exec --workspace backend -- prisma migrate dev --schema=prisma/schema.prisma",
+    "db:seed": "npm run db:seed --workspace backend",
+    "test:static": "node scripts/static-check.mjs",
+    "test:domain": "node --test backend/tests/domain.test.js"
+  },
+  "devDependencies": {
+    "concurrently": "9.1.2",
+    "typescript": "5.8.3"
+  },
+  "engines": {
+    "node": ">=20 <23"
+  }
+}

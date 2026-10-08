@@ -1,0 +1,16 @@
+import { Router } from 'express';
+import { authenticate, authorize } from '../middleware/auth.js';
+import { apply,myApplications,jobApplications,getApplication,updateProposal,updateQuotation,shortlist,reject,negotiate,respondNegotiation,select } from '../controllers/applicationController.js';
+const r=Router();
+r.post('/jobs/:jobId/apply',authenticate,authorize('FREELANCER'),apply);
+r.get('/mine',authenticate,authorize('FREELANCER'),myApplications);
+r.get('/jobs/:jobId',authenticate,authorize('CLIENT','ADMIN'),jobApplications);
+r.get('/:id',authenticate,getApplication);
+r.put('/:id/proposal',authenticate,authorize('FREELANCER'),updateProposal);
+r.put('/:id/quotation',authenticate,authorize('FREELANCER'),updateQuotation);
+r.patch('/:id/shortlist',authenticate,authorize('CLIENT'),shortlist);
+r.patch('/:id/reject',authenticate,authorize('CLIENT'),reject);
+r.post('/:id/negotiate',authenticate,authorize('CLIENT'),negotiate);
+r.patch('/negotiations/:negotiationId/respond',authenticate,authorize('FREELANCER'),respondNegotiation);
+r.post('/:id/select',authenticate,authorize('CLIENT'),select);
+export default r;

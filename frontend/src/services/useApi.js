@@ -1,0 +1,2 @@
+import { useCallback,useEffect,useState } from 'react';import { api } from './api.js';
+export function useApi(path,options={}){const [data,setData]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState('');const load=useCallback(async()=>{if(!path){setLoading(false);return}setLoading(true);setError('');try{setData(await api(path,options))}catch(e){setError(e.message)}finally{setLoading(false)}},[path]);useEffect(()=>{load()},[load]);return{data,loading,error,reload:load,setData}}

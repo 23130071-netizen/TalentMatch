@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { authenticate, authorize } from '../middleware/auth.js';
+import { listFreelancers,getFreelancer,updateMyProfile,setSkills,listCv,saveCv,listPortfolio,savePortfolio } from '../controllers/profileController.js';
+const router=Router();
+router.get('/freelancers',listFreelancers);
+router.get('/freelancers/:id',getFreelancer);
+router.put('/me',authenticate,updateMyProfile);
+router.put('/me/skills',authenticate,authorize('FREELANCER'),setSkills);
+router.get('/me/cv',authenticate,authorize('FREELANCER'),listCv);
+router.post('/me/cv',authenticate,authorize('FREELANCER'),saveCv);
+router.get('/me/portfolio',authenticate,authorize('FREELANCER'),listPortfolio);
+router.post('/me/portfolio',authenticate,authorize('FREELANCER'),savePortfolio);
+export default router;

@@ -1,0 +1,10 @@
+import fs from 'fs';
+import path from 'path';
+import { prisma } from '../config/prisma.js';
+import { env } from '../config/env.js';
+import { ok,AppError } from '../utils/http.js';
+
+export async function health(_req,res){let database='unreachable';try{await prisma.$queryRaw`SELECT 1`;database='reachable'}catch{}res.status(database==='reachable'?200:503).json({success:database==='reachable',message:database==='reachable'?'OK':'Database unavailable',data:{server:'running',database,timestamp:new Date().toISOString()}})}
+export async function catalog(_req,res,next){try{const [categories,skills]=await prisma.$transaction([prisma.category.findMany({orderBy:{name:'asc'}}),prisma.skill.findMany({orderBy:{name:'asc'}})]);ok(res,{categories,skills})}catch(e){next(e)}}
+export async function getFile(req,res,next){try{const file=await prisma.fileAsset.findUnique({where:{id:req.params.id},include:{project:true}});if(!file)throw new AppError(404,'Không tìm thấy file.');let allowed=file.visibility==='PUBLIC'||file.ownerId===req.user?.id;if(file.visibility==='PROJECT_PARTICIPANTS'&&file.project&&req.user)allowed=[file.project.clientId,file.project.freelancerId].includes(req.user.id)||req.user.role==='ADMIN';if(!allowed)throw new AppError(403,'Bạn không có quyền truy cập file này.');const absolute=path.resolve(file.path);if(!fs.existsSync(absolute))throw new AppError(404,'File vật lý không còn tồn tại.');res.download(absolute,file.originalName)}catch(e){next(e)}}
+export async function uploadFile(req,res,next){try{if(!req.file)throw new AppError(422,'Chưa chọn file.');const {category='GENERAL',projectId,visibility='OWNER_ONLY'}=req.body;if(projectId){const p=await prisma.project.findUnique({where:{id:projectId}});if(!p||![p.clientId,p.freelancerId].includes(req.user.id))throw new AppError(403,'Bạn không thuộc Project này.');}const row=await prisma.fileAsset.create({data:{ownerId:req.user.id,projectId:projectId||null,category,originalName:req.file.originalname,storedName:req.file.filename,mimeType:req.file.mimetype,sizeBytes:req.file.size,path:req.file.path,visibility}});ok(res,row,'Upload thành công.',201)}catch(e){next(e)}}
